@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:login_page/bloc/auth_bloc.dart';
+import 'package:login_page/home_page.dart';
 import 'package:login_page/widgets/gradient_button.dart';
 import 'package:login_page/widgets/login_field.dart';
 import 'package:login_page/widgets/social_button.dart';
@@ -17,48 +20,77 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            children: [
-              Image.asset('assets/images/signin_balls.png'),
-              const Text(
-                'Sign in.',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 50,
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthfailureState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.error,
                 ),
               ),
-              const SizedBox(height: 50),
-              const SocialButton(
-                  iconPath: 'assets/svgs/g_logo.svg',
-                  label: 'Continue with Google'),
-              const SizedBox(height: 20),
-              const SocialButton(
-                iconPath: 'assets/svgs/f_logo.svg',
-                label: 'Continue with Facebook',
-                horizontalPadding: 90,
-              ),
-              const SizedBox(height: 15),
-              const Text(
-                'or',
-                style: TextStyle(
-                  fontSize: 17,
+            );
+          }
+
+          if (state is AuthsuccessState) {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePage(),
                 ),
-              ),
-              const SizedBox(height: 15),
-              LoginField(
-                hintText: 'Email',
-                controller: emailController,
-              ),
-              const SizedBox(height: 15),
-              LoginField(
-                hintText: 'Password',
-                controller: passwordController,
-              ),
-              const SizedBox(height: 20),
-              const GradientButton(),
-            ],
+                (route) => false);
+          }
+        },
+        child: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              children: [
+                Image.asset('assets/images/signin_balls.png'),
+                const Text(
+                  'Sign in.',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 50,
+                  ),
+                ),
+                const SizedBox(height: 50),
+                const SocialButton(
+                    iconPath: 'assets/svgs/g_logo.svg',
+                    label: 'Continue with Google'),
+                const SizedBox(height: 20),
+                const SocialButton(
+                  iconPath: 'assets/svgs/f_logo.svg',
+                  label: 'Continue with Facebook',
+                  horizontalPadding: 90,
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  'or',
+                  style: TextStyle(
+                    fontSize: 17,
+                  ),
+                ),
+                const SizedBox(height: 15),
+                LoginField(
+                  hintText: 'Email',
+                  controller: emailController,
+                ),
+                const SizedBox(height: 15),
+                LoginField(
+                  hintText: 'Password',
+                  controller: passwordController,
+                ),
+                const SizedBox(height: 20),
+                GradientButton(
+                  onPressed: () {
+                    final email = emailController.text.trim();
+                    final password = passwordController.text.trim();
+                    BlocProvider.of<AuthBloc>(context)
+                        .add(LoginRequested(email: email, password: password));
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
