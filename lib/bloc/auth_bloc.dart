@@ -8,6 +8,14 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(AuthInitialState()) {
     on<LoginRequested>(_loginRequested);
+    on<LogoutRequested>(_logoutRequested);
+  }
+
+  @override
+  void onChange(Change<AuthState> change) {
+    super.onChange(change);
+
+    print("$change");
   }
 }
 
@@ -17,4 +25,9 @@ FutureOr<void> _loginRequested(LoginRequested event, Emitter<AuthState> emit) {
   } else {
     emit(AuthsuccessState());
   }
+}
+
+FutureOr<void> _logoutRequested(
+    LogoutRequested event, Emitter<AuthState> emit) {
+  emit(AuthInitialState());
 }
